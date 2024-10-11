@@ -26,20 +26,19 @@ A classic Snake game implemented in Python 3 using the Turtle graphics library. 
 ## Installation
 
 1. Clone this repository:
-    ```bash
+   ```bash
     git clone https://github.com/JamzTyson/snake.git
     cd snake
    ```
 
-2. Ensure you have Python 3 installed on your machine. You can download it from python.org.
+2. Ensure you have Python 3installed.
+
 
 ## Usage
 
 Run the game using the following command:
 
-    ```bash
-    python3 snake.py
-    ```
+    ```python3 snake.py```
 
 ## Gameplay
 
@@ -49,4 +48,4 @@ Avoid running into the walls or the snake's own body.
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under GPL v3+. See the LICENSE file for details.
