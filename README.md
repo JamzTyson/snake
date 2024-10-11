@@ -4,6 +4,8 @@ A classic Snake game implemented in Python 3 using the Turtle graphics library.
 Navigate the snake to eat food, grow in length, and avoid collisions with the
 walls and itself. 
 
+**This game is not yet complete.**
+
 ## Table of Contents
 
 - [Features](#features)
