@@ -43,7 +43,7 @@ walls and itself.
 
 Run the game using the following command:
 
-    ```python3 snake.py```
+    python3 snake.py
 
 
 ## Gameplay
