@@ -11,14 +11,16 @@ from enum import Enum, auto
 class ColorConfig:
     """Configure default game colours."""
     text: str = 'white'
+    # noinspection SpellCheckingInspection
     background: str = 'navyblue'
     head: str = 'white'
     segment: str = 'orange'
+    # noinspection SpellCheckingInspection
     food: tuple[str] = ('red', 'yellow', 'limegreen')
 
     @property
     def bg(self) -> str:
-        """Alias for bacground."""
+        """Alias for background."""
         return self.background
 
 
@@ -74,7 +76,7 @@ class SnakeGame:
         self.snake = Snake()
 
         # Add food
-        food = Food()
+        # food = Food()
         # print(food.xcor(), food.ycor())
 
         turtle.update()
@@ -106,11 +108,11 @@ class Food(turtle.Turtle):
 
         # Set position
         padding = 20
-        xmax = ConfigWindow.screen_width // 2 - padding
-        xmin = - xmax
-        ymax = ConfigWindow.screen_height // 2 - padding
-        ymin = - ymax
-        position = randint(xmin, xmax), randint(ymin, ymax)
+        x_max = ConfigWindow.screen_width // 2 - padding
+        x_min = - x_max
+        y_max = ConfigWindow.screen_height // 2 - padding
+        y_min = - y_max
+        position = randint(x_min, x_max), randint(y_min, y_max)
         self.goto(position)
 
 
