@@ -11,13 +11,23 @@ Sprite = namedtuple('Sprite', ['color', 'shape'])
 Text = namedtuple('Text', ['color', 'font', 'v_pos'])
 
 
+class Direction(Enum):
+    """Snake direction flags."""
+    UP = auto()
+    DOWN = auto()
+    LEFT = auto()
+    RIGHT = auto()
+    STOP = auto()
+
+
 @dataclass
 class Config:
     """Configure game defaults."""
     # Game initial default settings.
-    initial_delay = 0.1
+    initial_update_delay = 25  # milliseconds
     initial_score = 0
     initial_high_score = 0
+    move_delta = 5  # Distance to move in x,y directions per step.
 
     # Scoreboard text.
     text: Text = Text(color='white',
@@ -32,6 +42,21 @@ class Config:
                                 Sprite(color='yellow', shape='circle'),
                                 Sprite(color='limegreen', shape='circle'))
 
+    # Map direction of movement to x,y delta.
+    move_delta_map = {
+        Direction.UP: (0, move_delta),
+        Direction.DOWN: (0, -move_delta),
+        Direction.LEFT: (-move_delta, 0),
+        Direction.RIGHT: (move_delta, 0)
+    }
+
+    key_bindings = {
+        "Up": Direction.UP,
+        "Down": Direction.DOWN,
+        "Left": Direction.LEFT,
+        "Right": Direction.RIGHT
+    }
+
     # App window properties.
     screen_width: int = 600
     screen_height: int = 600
@@ -42,26 +67,6 @@ class Config:
     def bg(self) -> str:
         """Alias for background."""
         return self.background_color
-
-
-class Direction(Enum):
-    """Snake direction flags."""
-    UP = auto()
-    DOWN = auto()
-    LEFT = auto()
-    RIGHT = auto()
-    STOP = auto()
-
-    @staticmethod
-    def is_backtrack(dir_1, dir_2):
-        """Return True if directions are opposite."""
-        opposites = {
-            Direction.UP: Direction.DOWN,
-            Direction.DOWN: Direction.UP,
-            Direction.LEFT: Direction.RIGHT,
-            Direction.RIGHT: Direction.LEFT
-        }
-        return opposites.get(dir_1) is dir_2
 
 
 class SnakeGame:
@@ -75,7 +80,7 @@ class SnakeGame:
         height = config.screen_height
 
         # Initialise speed (delay) and scores.
-        self.delay = config.initial_delay
+        self.delay = config.initial_update_delay
         self.score = config.initial_score
         self.high_score = config.initial_high_score
 
@@ -98,19 +103,14 @@ class SnakeGame:
         # food = Food()
         # print(food.xcor(), food.ycor())
         self.update_score()
-        turtle.update()
+        self.update()
 
     def setup_listeners(self):
         """Configure listeners."""
         self.screen.listen()
-        self.screen.onkeypress(
-            lambda: self.snake.set_direction(Direction.UP), "Up")
-        self.screen.onkeypress(
-            lambda: self.snake.set_direction(Direction.DOWN), "Down")
-        self.screen.onkeypress(
-            lambda: self.snake.set_direction(Direction.LEFT), "Left")
-        self.screen.onkeypress(
-            lambda: self.snake.set_direction(Direction.RIGHT), "Right")
+        for key, direction in self.config.key_bindings.items():
+            self.screen.onkeypress(
+                lambda d=direction: self.snake.set_direction(d), key)
 
     def update_score(self):
         """Write current score to screen."""
@@ -119,10 +119,25 @@ class SnakeGame:
                        f"High Score : {self.high_score}", align="center",
                        font=self.config.text.font)
 
+    def update(self):
+        """Main game loop to keep updating the game state."""
+        self.snake.move()
+        # self.check_collisions()
+        turtle.update()
+        self.screen.ontimer(self.update, int(self.delay))
+
 
 class Snake:
     """Snake character as compound turtle."""
     config = Config()
+
+    # Attribute to check for backtracking.
+    _backtrack = {
+        Direction.UP: Direction.DOWN,
+        Direction.DOWN: Direction.UP,
+        Direction.LEFT: Direction.RIGHT,
+        Direction.RIGHT: Direction.LEFT
+    }
 
     def __init__(self):
         # head of the snake
@@ -137,10 +152,10 @@ class Snake:
     def set_direction(self, direction: Direction):
         """Set snake head direction.
 
-        Snake cannot double back on itself."""
-        if not Direction.is_backtrack(direction, self.head_direction):
+        Snake cannot double back on itself.
+        """
+        if self.head_direction is not Snake._backtrack.get(direction):
             self.head_direction = direction
-        print(self.head_direction)
 
     def add_segment(self):
         """Add one body segment."""
@@ -150,6 +165,14 @@ class Snake:
         new_segment.color(Snake.config.segment.color)
         new_segment.penup()
         self.segments.append(new_segment)
+
+    def move(self):
+        """Update snake position."""
+        if self.head_direction is not Direction.STOP:
+            delta_x, delta_y = self.config.move_delta_map[self.head_direction]
+            new_x = self.head.xcor() + delta_x
+            new_y = self.head.ycor() + delta_y
+            self.head.goto(new_x, new_y)
 
 
 class Food(turtle.Turtle):
