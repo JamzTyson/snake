@@ -9,6 +9,7 @@ from collections import namedtuple
 
 Sprite = namedtuple('Sprite', ['color', 'shape'])
 
+
 @dataclass
 class Config:
     """Configure default game colours."""
@@ -96,10 +97,14 @@ class SnakeGame:
     def setup_listeners(self):
         """Configure listeners."""
         self.screen.listen()
-        self.screen.onkeypress(lambda: self.snake.set_direction(Direction.UP), "Up")
-        self.screen.onkeypress(lambda: self.snake.set_direction(Direction.DOWN), "Down")
-        self.screen.onkeypress(lambda: self.snake.set_direction(Direction.LEFT), "Left")
-        self.screen.onkeypress(lambda: self.snake.set_direction(Direction.RIGHT), "Right")
+        self.screen.onkeypress(
+            lambda: self.snake.set_direction(Direction.UP), "Up")
+        self.screen.onkeypress(
+            lambda: self.snake.set_direction(Direction.DOWN), "Down")
+        self.screen.onkeypress(
+            lambda: self.snake.set_direction(Direction.LEFT), "Left")
+        self.screen.onkeypress(
+            lambda: self.snake.set_direction(Direction.RIGHT), "Right")
 
 
 class Snake:
