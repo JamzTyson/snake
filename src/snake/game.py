@@ -8,29 +8,39 @@ from collections import namedtuple
 
 
 Sprite = namedtuple('Sprite', ['color', 'shape'])
-
+Text = namedtuple('Text', ['color', 'font', 'v_pos'])
 
 @dataclass
 class Config:
-    """Configure default game colours."""
-    text: str = 'white'
-    # noinspection SpellCheckingInspection
-    background: str = 'navyblue'
+    """Configure game defaults."""
+    # Game initial default settings.
+    initial_delay = 0.1
+    initial_score = 0
+    initial_high_score = 0
+
+    # Scoreboard text.
+    text: Text = Text(color='white',
+                      font=("sans", 20, "normal"),
+                      v_pos=50)
+
+    # Sprites.
     head: Sprite = Sprite(color='white', shape='square')
     segment: Sprite = Sprite(color='orange', shape='circle')
     # noinspection SpellCheckingInspection
     food: tuple[Sprite, ...] = (Sprite(color='red', shape='circle'),
-                           Sprite(color='yellow', shape='circle'),
-                           Sprite(color='limegreen', shape='circle'))
+                                Sprite(color='yellow', shape='circle'),
+                                Sprite(color='limegreen', shape='circle'))
 
-    # App window dimensions.
+    # App window properties.
     screen_width: int = 600
     screen_height: int = 600
+    # noinspection SpellCheckingInspection
+    background_color: str = 'navyblue'
 
     @property
     def bg(self) -> str:
         """Alias for background."""
-        return self.background
+        return self.background_color
 
 
 class Direction(Enum):
@@ -56,34 +66,29 @@ class Direction(Enum):
 class SnakeGame:
     """Snake game."""
 
-    def __init__(self):
+    def __init__(self, config):
         turtle.tracer(0)
+        self.config = config
         # Default settings.
-        color = Config()
-        width = Config.screen_width
-        height = Config.screen_height
-        text_height = 50
-        font = "sans", 20, "normal"
+        width = config.screen_width
+        height = config.screen_height
 
-        # Score:
-        self.current_score = 0
-        self.high_score = 0
+        # Initialise speed (delay) and scores.
+        self.delay = config.initial_delay
+        self.score = config.initial_score
+        self.high_score = config.initial_high_score
 
         # Initialise screen.
         self.screen = turtle.Screen()
         self.screen.setup(width, height)
         self.screen.title("Snake")
-        self.screen.bgcolor(color.bg)
+        self.screen.bgcolor(config.bg)
 
         # Screen text
-        pen = turtle.Turtle()
-        pen.color(color.text)
-        pen.penup()
-        pen.hideturtle()
-        pen.goto(0, height // 2 - text_height)
-        pen.write(f"Score : {self.current_score}  "
-                  f"High Score : {self.high_score}", align="center",
-                  font=font)
+        self.pen = turtle.Turtle()
+        self.pen.color(config.text.color)
+        self.pen.hideturtle()
+        self.pen.goto(0, height // 2 - config.text.v_pos)
 
         self.snake = Snake()
         self.setup_listeners()
@@ -91,7 +96,7 @@ class SnakeGame:
         # Add food
         # food = Food()
         # print(food.xcor(), food.ycor())
-
+        self.update_score()
         turtle.update()
 
     def setup_listeners(self):
@@ -105,6 +110,14 @@ class SnakeGame:
             lambda: self.snake.set_direction(Direction.LEFT), "Left")
         self.screen.onkeypress(
             lambda: self.snake.set_direction(Direction.RIGHT), "Right")
+
+    def update_score(self):
+        """Write current score to screen."""
+        self.pen.clear()
+        self.pen.write(f"Score : {self.score}  "
+                       f"High Score : {self.high_score}", align="center",
+                       font=self.config.text.font)
+
 
 
 class Snake:
@@ -160,11 +173,7 @@ class Food(turtle.Turtle):
 
 
 if __name__ == '__main__':
-    delay = 0.1
-    score = 0
-    high_score = 0
-
     # Init game instance.
-    game = SnakeGame()
+    game = SnakeGame(Config())
 
     turtle.Screen().mainloop()
