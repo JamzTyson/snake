@@ -10,6 +10,7 @@ from collections import namedtuple
 Sprite = namedtuple('Sprite', ['color', 'shape'])
 Text = namedtuple('Text', ['color', 'font', 'v_pos'])
 
+
 @dataclass
 class Config:
     """Configure game defaults."""
@@ -117,7 +118,6 @@ class SnakeGame:
         self.pen.write(f"Score : {self.score}  "
                        f"High Score : {self.high_score}", align="center",
                        font=self.config.text.font)
-
 
 
 class Snake:
