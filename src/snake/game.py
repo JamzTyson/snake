@@ -19,7 +19,7 @@ class Config:
     head: Sprite = Sprite(color='white', shape='square')
     segment: Sprite = Sprite(color='orange', shape='circle')
     # noinspection SpellCheckingInspection
-    food: tuple[Sprite] = (Sprite(color='red', shape='circle'),
+    food: tuple[Sprite, ...] = (Sprite(color='red', shape='circle'),
                            Sprite(color='yellow', shape='circle'),
                            Sprite(color='limegreen', shape='circle'))
 
