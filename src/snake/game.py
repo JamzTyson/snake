@@ -4,37 +4,32 @@ import turtle
 from random import choice, randint
 from dataclasses import dataclass
 from enum import Enum, auto
+from collections import namedtuple
 
+
+Sprite = namedtuple('Sprite', ['color', 'shape'])
 
 @dataclass
-class ConfigColor:
+class Config:
     """Configure default game colours."""
     text: str = 'white'
     # noinspection SpellCheckingInspection
     background: str = 'navyblue'
-    head: str = 'white'
-    segment: str = 'orange'
+    head: Sprite = Sprite(color='white', shape='square')
+    segment: Sprite = Sprite(color='orange', shape='circle')
     # noinspection SpellCheckingInspection
-    food: tuple[str] = ('red', 'yellow', 'limegreen')
+    food: tuple[Sprite] = (Sprite(color='red', shape='circle'),
+                           Sprite(color='yellow', shape='circle'),
+                           Sprite(color='limegreen', shape='circle'))
+
+    # App window dimensions.
+    screen_width: int = 600
+    screen_height: int = 600
 
     @property
     def bg(self) -> str:
         """Alias for background."""
         return self.background
-
-
-@dataclass
-class ConfigShapes:
-    """Configure default Turtle shapes."""
-    head: str = 'square'
-    segment: str = 'circle'
-
-
-@dataclass
-class ConfigWindow:
-    """Configure default app window."""
-    screen_width: int = 600
-    screen_height: int = 600
 
 
 class Direction(Enum):
@@ -47,6 +42,7 @@ class Direction(Enum):
 
     @staticmethod
     def is_backtrack(dir_1, dir_2):
+        """Return True if directions are opposite."""
         opposites = {
             Direction.UP: Direction.DOWN,
             Direction.DOWN: Direction.UP,
@@ -62,9 +58,9 @@ class SnakeGame:
     def __init__(self):
         turtle.tracer(0)
         # Default settings.
-        color = ConfigColor()
-        width = ConfigWindow.screen_width
-        height = ConfigWindow.screen_height
+        color = Config()
+        width = Config.screen_width
+        height = Config.screen_height
         text_height = 50
         font = "sans", 20, "normal"
 
@@ -108,14 +104,13 @@ class SnakeGame:
 
 class Snake:
     """Snake character as compound turtle."""
-    color = ConfigColor()
-    shape = ConfigShapes()
+    config = Config()
 
     def __init__(self):
         # head of the snake
         self.head = turtle.Turtle()
-        self.head.shape(Snake.shape.head)
-        self.head.color(Snake.color.head)
+        self.head.shape(Snake.config.head.shape)
+        self.head.color(Snake.config.head.color)
         self.head.penup()
         self.head.goto(0, 0)
         self.head_direction = Direction.STOP
@@ -134,26 +129,26 @@ class Snake:
         new_segment = turtle.Turtle()
         new_segment.speed(0)
         new_segment.shape("square")
-        new_segment.color(Snake.color.segment)
+        new_segment.color(Snake.config.segment.color)
         new_segment.penup()
         self.segments.append(new_segment)
 
 
 class Food(turtle.Turtle):
     """Sprites to be collected."""
-    colors = ConfigColor().food
+    sprites = Config().food
 
     def __init__(self):
         super().__init__()
-        self.color(choice(Food.colors))
+        self.color(choice(Food.sprites).color)
         self.shape('circle')
         self.penup()
 
         # Set position
         padding = 20
-        x_max = ConfigWindow.screen_width // 2 - padding
+        x_max = Config.screen_width // 2 - padding
         x_min = - x_max
-        y_max = ConfigWindow.screen_height // 2 - padding
+        y_max = Config.screen_height // 2 - padding
         y_min = - y_max
         position = randint(x_min, x_max), randint(y_min, y_max)
         self.goto(position)
