@@ -1,14 +1,13 @@
 """Python / Turtle implementation of classic Snake game."""
 
 import turtle
-# from time import sleep
 from random import choice, randint
 from dataclasses import dataclass
 from enum import Enum, auto
 
 
 @dataclass
-class ColorConfig:
+class ConfigColor:
     """Configure default game colours."""
     text: str = 'white'
     # noinspection SpellCheckingInspection
@@ -22,6 +21,13 @@ class ColorConfig:
     def bg(self) -> str:
         """Alias for background."""
         return self.background
+
+
+@dataclass
+class ConfigShapes:
+    """Configure default Turtle shapes."""
+    head: str = 'square'
+    segment: str = 'circle'
 
 
 @dataclass
@@ -39,6 +45,16 @@ class Direction(Enum):
     RIGHT = auto()
     STOP = auto()
 
+    @staticmethod
+    def is_backtrack(dir_1, dir_2):
+        opposites = {
+            Direction.UP: Direction.DOWN,
+            Direction.DOWN: Direction.UP,
+            Direction.LEFT: Direction.RIGHT,
+            Direction.RIGHT: Direction.LEFT
+        }
+        return opposites.get(dir_1) is dir_2
+
 
 class SnakeGame:
     """Snake game."""
@@ -46,7 +62,7 @@ class SnakeGame:
     def __init__(self):
         turtle.tracer(0)
         # Default settings.
-        color = ColorConfig()
+        color = ConfigColor()
         width = ConfigWindow.screen_width
         height = ConfigWindow.screen_height
         text_height = 50
@@ -72,8 +88,8 @@ class SnakeGame:
                   f"High Score : {self.high_score}", align="center",
                   font=font)
 
-        # Draw snake
         self.snake = Snake()
+        self.setup_listeners()
 
         # Add food
         # food = Food()
@@ -81,24 +97,51 @@ class SnakeGame:
 
         turtle.update()
 
+    def setup_listeners(self):
+        """Configure listeners."""
+        self.screen.listen()
+        self.screen.onkeypress(lambda: self.snake.set_direction(Direction.UP), "Up")
+        self.screen.onkeypress(lambda: self.snake.set_direction(Direction.DOWN), "Down")
+        self.screen.onkeypress(lambda: self.snake.set_direction(Direction.LEFT), "Left")
+        self.screen.onkeypress(lambda: self.snake.set_direction(Direction.RIGHT), "Right")
+
 
 class Snake:
     """Snake character as compound turtle."""
+    color = ConfigColor()
+    shape = ConfigShapes()
 
     def __init__(self):
-        color = ColorConfig()
         # head of the snake
         self.head = turtle.Turtle()
-        self.head.shape("square")
-        self.head.color(color.head)
+        self.head.shape(Snake.shape.head)
+        self.head.color(Snake.color.head)
         self.head.penup()
         self.head.goto(0, 0)
-        self.head.direction = Direction.STOP
+        self.head_direction = Direction.STOP
+        self.segments = []
+
+    def set_direction(self, direction: Direction):
+        """Set snake head direction.
+
+        Snake cannot double back on itself."""
+        if not Direction.is_backtrack(direction, self.head_direction):
+            self.head_direction = direction
+        print(self.head_direction)
+
+    def add_segment(self):
+        """Add one body segment."""
+        new_segment = turtle.Turtle()
+        new_segment.speed(0)
+        new_segment.shape("square")
+        new_segment.color(Snake.color.segment)
+        new_segment.penup()
+        self.segments.append(new_segment)
 
 
 class Food(turtle.Turtle):
     """Sprites to be collected."""
-    colors = ColorConfig().food
+    colors = ConfigColor().food
 
     def __init__(self):
         super().__init__()
