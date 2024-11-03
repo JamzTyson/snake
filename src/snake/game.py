@@ -256,7 +256,7 @@ class Food(turtle.Turtle):
         padding = 20
         x_max = Config.display_width // 2 - padding
         x_min = - x_max
-        y_max = Config.dispaly_height // 2 - padding
+        y_max = Config.display_height // 2 - padding
         y_min = - y_max
         position = randint(x_min, x_max), randint(y_min, y_max)
         self.goto(position)
