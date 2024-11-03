@@ -8,7 +8,7 @@ from collections import namedtuple
 
 
 Sprite = namedtuple('Sprite', ['color', 'shape'])
-Text = namedtuple('Text', ['color', 'font', 'v_pos'])
+Text = namedtuple('Text', ['color', 'bg_color', 'font', 'v_pos'])
 
 
 class Direction(Enum):
@@ -29,14 +29,17 @@ class Config:
     initial_high_score = 0
     move_delta = 5  # Distance to move in x,y directions per step.
 
-    # Scoreboard text.
+    # Scoreboard.
+    scoreboard_height: int = 50
     text: Text = Text(color='white',
+                      bg_color='black',
                       font=("sans", 20, "normal"),
                       v_pos=50)
 
     # Sprites.
     head: Sprite = Sprite(color='white', shape='square')
     segment: Sprite = Sprite(color='orange', shape='circle')
+    head_size: int = 20  # px size of head.
     # noinspection SpellCheckingInspection
     food: tuple[Sprite, ...] = (Sprite(color='red', shape='circle'),
                                 Sprite(color='yellow', shape='circle'),
@@ -54,14 +57,17 @@ class Config:
         "Up": Direction.UP,
         "Down": Direction.DOWN,
         "Left": Direction.LEFT,
-        "Right": Direction.RIGHT
+        "Right": Direction.RIGHT,
+        "space": Direction.STOP
     }
 
     # App window properties.
-    screen_width: int = 600
-    screen_height: int = 600
+    display_width: int = 600
+    display_height: int = 600
+    border: int = 25  # Ensure that all the display area is visible.
+    background_color: str = 'black'
     # noinspection SpellCheckingInspection
-    background_color: str = 'navyblue'
+    board_color: str = 'navyblue'
 
     @property
     def bg(self) -> str:
@@ -76,8 +82,8 @@ class SnakeGame:
         turtle.tracer(0)
         self.config = config
         # Default settings.
-        width = config.screen_width
-        height = config.screen_height
+        width = config.display_width
+        height = config.display_height
 
         # Initialise speed (delay) and scores.
         self.delay = config.initial_update_delay
@@ -86,9 +92,13 @@ class SnakeGame:
 
         # Initialise screen.
         self.screen = turtle.Screen()
-        self.screen.setup(width, height)
+        # Setup screen area with border space.
+        self.screen.setup(width + config.border * 2,
+                          height + config.border * 2)
         self.screen.title("Snake")
         self.screen.bgcolor(config.bg)
+        self.draw_scoreboard()
+        self.draw_game_area()
 
         # Screen text
         self.pen = turtle.Turtle()
@@ -104,6 +114,47 @@ class SnakeGame:
         # print(food.xcor(), food.ycor())
         self.update_score()
         self.update()
+
+    def draw_scoreboard(self):
+        """Draw the score area at the top of the screen."""
+        height = self.config.scoreboard_height
+        width = self.config.display_width
+        top = self.config.display_height // 2
+
+        scoreboard_turtle = turtle.Turtle()
+        scoreboard_turtle.hideturtle()
+        scoreboard_turtle.penup()
+        # Start at top left corner.
+        scoreboard_turtle.goto(-width // 2, top)
+        scoreboard_turtle.pendown()
+        scoreboard_turtle.color(self.config.text.bg_color)
+
+        scoreboard_turtle.begin_fill()
+        for distance in (width, height, width, height):
+            scoreboard_turtle.forward(distance)
+            scoreboard_turtle.right(90)
+        scoreboard_turtle.end_fill()
+
+    def draw_game_area(self):
+        """Draw the area that we play in."""
+        scoreboard_height = self.config.scoreboard_height
+        width = self.config.display_width
+        top = self.config.display_height // 2 - scoreboard_height
+        height = self.config.display_height - scoreboard_height
+
+        board_turtle = turtle.Turtle()
+        board_turtle.hideturtle()
+        board_turtle.penup()
+        # Start at top left corner.
+        board_turtle.goto(-width // 2, top)
+        board_turtle.pendown()
+        board_turtle.color(self.config.board_color)
+
+        board_turtle.begin_fill()
+        for distance in (width, height, width, height):
+            board_turtle.forward(distance)
+            board_turtle.right(90)
+        board_turtle.end_fill()
 
     def setup_listeners(self):
         """Configure listeners."""
@@ -122,9 +173,25 @@ class SnakeGame:
     def update(self):
         """Main game loop to keep updating the game state."""
         self.snake.move()
-        # self.check_collisions()
+        self.check_collision()
         turtle.update()
         self.screen.ontimer(self.update, int(self.delay))
+
+    def check_collision(self):
+        """Return True if snake collides with edge of board or its tail."""
+        x_coord = self.snake.head.xcor()
+        y_coord = self.snake.head.ycor()
+        half_head_size = self.config.head_size // 2
+        half_width = self.config.display_width // 2
+
+        x_max = half_width - half_head_size
+        x_min = -half_width + half_head_size
+        y_max = half_width - self.config.scoreboard_height - half_head_size
+        y_min = -half_width + half_head_size
+
+        out_of_bounds = not (x_min <= x_coord <= x_max and y_min <= y_coord <= y_max)
+        if out_of_bounds:
+            print(x_coord, y_coord)  # crash
 
 
 class Snake:
@@ -187,9 +254,9 @@ class Food(turtle.Turtle):
 
         # Set position
         padding = 20
-        x_max = Config.screen_width // 2 - padding
+        x_max = Config.display_width // 2 - padding
         x_min = - x_max
-        y_max = Config.screen_height // 2 - padding
+        y_max = Config.dispaly_height // 2 - padding
         y_min = - y_max
         position = randint(x_min, x_max), randint(y_min, y_max)
         self.goto(position)
