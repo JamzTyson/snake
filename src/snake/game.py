@@ -8,7 +8,6 @@ from itertools import pairwise
 from random import choice, randint
 
 import turtle
-from turtle import Turtle
 
 
 SpriteAttributes = namedtuple('SpriteAttributes',
@@ -228,7 +227,7 @@ class Snake:
         self.head.penup()
         self.head.goto(0, 0)
         self.head_direction = Direction.STOP
-        self.segments: list[Turtle] = []
+        self.segments: list[turtle.Turtle] = []
 
     @classmethod
     def set_move_delta_map(cls, delta: float) -> None:
