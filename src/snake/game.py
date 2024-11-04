@@ -1,10 +1,14 @@
 """Python / Turtle implementation of classic Snake game."""
 
-import turtle
-from random import choice, randint
+from collections import namedtuple
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum, auto
-from collections import namedtuple
+from itertools import pairwise
+from random import choice, randint
+
+import turtle
+from turtle import Turtle
 
 
 SpriteAttributes = namedtuple('SpriteAttributes',
@@ -66,7 +70,7 @@ class SpriteConfig:
     """Game Turtle attributes."""
     head: SpriteAttributes = SpriteAttributes(color='white',
                                               shape='square')
-    segment: SpriteAttributes = SpriteAttributes(color='orange',
+    segment: SpriteAttributes = SpriteAttributes(color='white',
                                                  shape='circle')
     head_size: int = 20  # px size of head.
     # noinspection SpellCheckingInspection
@@ -80,7 +84,7 @@ class SpriteConfig:
 class SnakeGame:
     """Snake game."""
 
-    def __init__(self, config: Config, sprite_config: SpriteConfig):
+    def __init__(self, config: Config, sprite_config: SpriteConfig) -> None:
         """Initialise SnakeGame.
 
         Args:
@@ -124,7 +128,7 @@ class SnakeGame:
         self.update_score()
         self.update()
 
-    def draw_scoreboard(self):
+    def draw_scoreboard(self) -> None:
         """Draw the score area at the top of the screen."""
         height = self.config.scoreboard_height
         width = self.config.display_width
@@ -132,7 +136,7 @@ class SnakeGame:
         color = self.config.text.bg_color
         self._draw_board_region(width, height, top, color)
 
-    def draw_game_area(self):
+    def draw_game_area(self) -> None:
         """Draw the area that we play in."""
         scoreboard_height = self.config.scoreboard_height
         width = self.config.display_width
@@ -142,7 +146,7 @@ class SnakeGame:
         self._draw_board_region(width, height, top, color)
 
     @staticmethod
-    def _draw_board_region(width, height, top, color):
+    def _draw_board_region(width: int, height: int, top: int, color: str) -> None:
         """Draw rectangular area the width of the board."""
         board_turtle = turtle.Turtle()
         board_turtle.hideturtle()
@@ -158,28 +162,28 @@ class SnakeGame:
             board_turtle.right(90)
         board_turtle.end_fill()
 
-    def setup_listeners(self):
+    def setup_listeners(self) -> None:
         """Configure listeners."""
         self.screen.listen()
         for direction, char in KeyBindings.bindings.items():
-            self.screen.onkeypress(
-                lambda d=direction: self.snake.set_direction(d), char)
+            fun: Callable = lambda d=direction: self.snake.set_direction(d)
+            self.screen.onkeypress(fun, char)
 
-    def update_score(self):
+    def update_score(self) -> None:
         """Write current score to screen."""
         self.pen.clear()
         self.pen.write(f"Score : {self.score}  "
                        f"High Score : {self.high_score}", align="center",
                        font=self.config.text.font)
 
-    def update(self):
+    def update(self) -> None:
         """Main game loop to keep updating the game state."""
         self.snake.move()
         self.check_collision()
         turtle.update()
         self.screen.ontimer(self.update, self.delay)
 
-    def check_collision(self):
+    def check_collision(self) -> None:
         """Return True if snake collides with edge of board or its tail."""
         x_coord = self.snake.head.xcor()
         y_coord = self.snake.head.ycor()
@@ -207,9 +211,9 @@ class Snake:
         Direction.RIGHT: Direction.LEFT
     }
 
-    _move_delta_map: dict[Direction, tuple[int, int]] = {}
+    _move_delta_map: dict[Direction, tuple[float, float]] = {}
 
-    def __init__(self, config, sprite_config):
+    def __init__(self, config: Config, sprite_config: SpriteConfig) -> None:
         self.config = config
         self.sprite_config = sprite_config
 
@@ -224,10 +228,10 @@ class Snake:
         self.head.penup()
         self.head.goto(0, 0)
         self.head_direction = Direction.STOP
-        self.segments = []
+        self.segments: list[Turtle] = []
 
     @classmethod
-    def set_move_delta_map(cls, delta: int):
+    def set_move_delta_map(cls, delta: float) -> None:
         """Initialize the class-level movement delta map.
 
         Maps the direction of movement to x,y delta.
@@ -239,7 +243,7 @@ class Snake:
             Direction.RIGHT: (delta, 0)
         }
 
-    def set_direction(self, direction: Direction):
+    def set_direction(self, direction: Direction) -> None:
         """Set snake head direction.
 
         Snake cannot double back on itself.
@@ -247,29 +251,61 @@ class Snake:
         if self.head_direction is not Snake._backtrack.get(direction):
             self.head_direction = direction
 
-    def add_segment(self):
-        """Add one body segment."""
+    def add_segment(self) -> None:
+        """Add one body segment.
+
+        Sets the initial position of the new segment at the same
+        position as the final segment, or the same position as the
+        head if this is the first segment. The position will be corrected
+        on the next move() call.
+        """
         new_segment = turtle.Turtle()
         new_segment.speed(0)
-        new_segment.shape("square")
+        new_segment.shape("circle")
         new_segment.color(self.sprite_config.segment.color)
         new_segment.penup()
+
+        if self.segments:
+            # Add new segment at same position as final tail segment.
+            new_segment.goto(self.segments[-1].xcor(),
+                             self.segments[-1].ycor())
+        else:
+            # Add new segment at head position.
+            new_segment.goto(self.head.xcor(), self.head.ycor())
+
         self.segments.append(new_segment)
 
-    def move(self):
+    def move(self) -> None:
         """Update snake position."""
         if self.head_direction is not Direction.STOP:
             delta_x, delta_y = Snake._move_delta_map[self.head_direction]
+            previous_head_position = self.head.xcor(), self.head.ycor()
             new_x = self.head.xcor() + delta_x
             new_y = self.head.ycor() + delta_y
             self.head.goto(new_x, new_y)
+
+            self.update_tail(previous_head_position)
+
+
+    def update_tail(self, prev_head_position: tuple[float, float]) -> None:
+        """Update positions of tail segments."""
+        prev_head_x, prev_head_y = prev_head_position
+        # Update tail segments in reverse order.
+        for current, previous in pairwise(reversed(self.segments)):
+            current.goto(previous.xcor(), previous.ycor())
+            # current.showturtle()
+
+        # Update first segment to old head position.
+        if self.segments:
+            self.segments[0].goto(prev_head_x, prev_head_y)
+            # self.segments[0].showturtle()
 
 
 class Food(turtle.Turtle):
     """Sprites to be collected."""
     sprites = SpriteConfig.food
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.color(choice(Food.sprites).color)
         self.shape('circle')
