@@ -293,12 +293,10 @@ class Snake:
         # Update tail segments in reverse order.
         for current, previous in pairwise(reversed(self.segments)):
             current.goto(previous.xcor(), previous.ycor())
-            # current.showturtle()
 
         # Update first segment to old head position.
         if self.segments:
             self.segments[0].goto(prev_head_x, prev_head_y)
-            # self.segments[0].showturtle()
 
 
 class Food(turtle.Turtle):
