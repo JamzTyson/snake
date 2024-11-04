@@ -231,7 +231,7 @@ class Snake:
 
     @classmethod
     def set_move_delta_map(cls, delta: float) -> None:
-        """Initialize the class-level movement delta map.
+        """Initialize or update the class-level movement delta map.
 
         Maps the direction of movement to x,y delta.
         """
