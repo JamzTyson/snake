@@ -28,13 +28,14 @@ class SnakeGame:
         self.delay = config.initial_update_delay
         self.scores: Scores = Scores(current_score=0, high_score=0)
 
+        # Initialise game components.
         self.screen_manager = ScreenManager(config, sprite_config)
         self.snake = Snake(self.config, self.sprite_config)
-        self.setup_listeners()
-
-        # Add food
         self.food = Food(config, sprite_config)
 
+        self.setup_listeners()
+
+        # Handle updates.
         self.screen_manager.update_score(self.scores)
         self.update()
 

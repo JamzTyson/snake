@@ -1,14 +1,27 @@
 """Type definitions, Enums and other constants."""
 
-from collections import namedtuple
+from typing import NamedTuple
 from enum import Enum, auto
 
 
-SpriteAttributes = namedtuple('SpriteAttributes',
-                              ['color', 'shape'])
-TextAttributes = namedtuple('TextAttributes',
-                            ['color', 'bg_color', 'font', 'v_pos'])
-Scores = namedtuple('Scores', ['current_score', 'high_score'])
+class SpriteAttributes(NamedTuple):
+    """Color and shape of sprites."""
+    color: str
+    shape: str
+
+
+class TextAttributes(NamedTuple):
+    """Text attributes."""
+    color: str
+    bg_color: str
+    font: tuple[str, int, str]
+    v_pos: int
+
+
+class Scores(NamedTuple):
+    """Current and high scores in game."""
+    current_score: int
+    high_score: int
 
 
 class Direction(Enum):
@@ -20,7 +33,7 @@ class Direction(Enum):
     STOP = auto()
 
 
-KEY_BINDINGS = {
+KEY_BINDINGS: dict[Direction, str] = {
     Direction.UP: "Up",
     Direction.DOWN: "Down",
     Direction.LEFT: "Left",
