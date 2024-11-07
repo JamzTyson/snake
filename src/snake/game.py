@@ -6,7 +6,7 @@ from random import choice, randint
 import turtle
 
 from snake.config import Config, SpriteConfig
-from snake.constants import Direction, KEY_BINDINGS
+from snake.constants import Direction, Scores, KEY_BINDINGS, BACKTRACK_MAP
 from snake.ui import ScreenManager
 
 
@@ -26,8 +26,7 @@ class SnakeGame:
 
         # Initialise speed (delay) and scores.
         self.delay = config.initial_update_delay
-        self.score = 0
-        self.high_score = 0
+        self.scores: Scores = Scores(current_score=0, high_score=0)
 
         self.screen_manager = ScreenManager(config, sprite_config)
         self.snake = Snake(self.config, self.sprite_config)
@@ -35,8 +34,8 @@ class SnakeGame:
 
         # Add food
         self.food = Food(config, sprite_config)
-        print(self.food.xcor(), self.food.ycor())
-        self.screen_manager.update_score(self.score, self.high_score)
+
+        self.screen_manager.update_score(self.scores)
         self.update()
 
     def setup_listeners(self) -> None:
@@ -86,14 +85,7 @@ class SnakeGame:
 
 class Snake:
     """Snake character as compound turtle."""
-    # Attribute to check for backtracking.
-    _backtrack = {
-        Direction.UP: Direction.DOWN,
-        Direction.DOWN: Direction.UP,
-        Direction.LEFT: Direction.RIGHT,
-        Direction.RIGHT: Direction.LEFT
-    }
-
+    _backtrack_map = BACKTRACK_MAP
     _move_delta_map: dict[Direction, tuple[float, float]] = {}
 
     def __init__(self, config: Config, sprite_config: SpriteConfig) -> None:
@@ -136,7 +128,7 @@ class Snake:
 
         Snake cannot double back on itself.
         """
-        if self.head_direction is not Snake._backtrack.get(direction):
+        if self.head_direction is not Snake._backtrack_map.get(direction):
             self.head_direction = direction
 
     def add_segment(self) -> None:
