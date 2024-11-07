@@ -1,38 +1,15 @@
 """Python / Turtle implementation of classic Snake game."""
 
-from collections import namedtuple
 from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum, auto
 from itertools import pairwise
 from random import choice, randint
 import turtle
 
-
-SpriteAttributes = namedtuple('SpriteAttributes',
-                              ['color', 'shape'])
-TextAttributes = namedtuple('TextAttributes',
-                            ['color', 'bg_color', 'font', 'v_pos'])
-
-
-class Direction(Enum):
-    """Snake direction flags."""
-    UP = auto()
-    DOWN = auto()
-    LEFT = auto()
-    RIGHT = auto()
-    STOP = auto()
-
-
-class KeyBindings:
-    """Static key bindings for direction controls."""
-    bindings = {
-        Direction.UP: "Up",
-        Direction.DOWN: "Down",
-        Direction.LEFT: "Left",
-        Direction.RIGHT: "Right",
-        Direction.STOP: "space"
-    }
+from snake.constants import (SpriteAttributes,
+                             TextAttributes,
+                             Direction,
+                             KEY_BINDINGS)
 
 
 @dataclass
@@ -112,7 +89,7 @@ class SnakeGame:
     def setup_listeners(self) -> None:
         """Configure listeners."""
         self.screen_manager.screen.listen()
-        for direction, char in KeyBindings.bindings.items():
+        for direction, char in KEY_BINDINGS.items():
             fun: Callable = lambda d=direction: self.snake.set_direction(d)
             self.screen_manager.screen.onkeypress(fun, char)
 
