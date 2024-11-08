@@ -18,6 +18,13 @@ class TextAttributes(NamedTuple):
     v_pos: int
 
 
+# noinspection SpellCheckingInspection
+class Coords(NamedTuple):
+    """x/y coordinates."""
+    x: int
+    y: int
+
+
 class Direction(Enum):
     """Snake direction flags."""
     UP = auto()

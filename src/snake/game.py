@@ -1,10 +1,9 @@
 """Python / Turtle implementation of classic Snake game."""
 
-from collections.abc import Callable
 import turtle
 
 from snake.config import Config, SpriteConfig
-from snake.constants import (KEY_BINDINGS)
+from snake.constants import KEY_BINDINGS
 from snake.game_state import GameState
 from snake.ui import ScreenManager
 
@@ -34,9 +33,12 @@ class SnakeGame:
     def setup_listeners(self) -> None:
         """Configure listeners."""
         self.screen_manager.screen.listen()
+
         for direction, char in KEY_BINDINGS.items():
-            fun: Callable = lambda d=direction: self.game_state.snake.set_direction(d)
-            self.screen_manager.screen.onkeypress(fun, char)
+            self.screen_manager.screen.onkeypress(
+                lambda d=direction:
+                (self.game_state.snake.set_direction(d)), char
+            )
 
     def check_collision(self) -> bool:
         """Return True if snake collides with edge of board or its tail."""
@@ -44,17 +46,16 @@ class SnakeGame:
 
     def tail_collision(self) -> bool:
         """Return True if head collides with edge of board."""
-        head = self.game_state.snake.head
+        head = self.game_state.head
         half_head_size = self.sprite_config.sprite_size // 2
-        for segment in self.game_state.snake.segments:
+        for segment in self.game_state.segments:
             if segment.distance(head) <= half_head_size:
                 return True
         return False
 
     def edge_collision(self) -> bool:
         """Return True if head collides with edge of board."""
-        x_coord = self.game_state.snake.head.xcor()
-        y_coord = self.game_state.snake.head.ycor()
+        x_coord, y_coord = self.game_state.head_position
         half_head_size = self.sprite_config.sprite_size // 2
         half_width = self.config.display_width // 2
         half_height = self.config.display_height // 2
@@ -69,7 +70,7 @@ class SnakeGame:
 
     def check_food_collision(self):
         """Return True if head collides with food_attributes sprite."""
-        return (self.game_state.snake.head.distance(self.game_state.food)
+        return (self.game_state.head.distance(self.game_state.food)
                 < self.sprite_config.sprite_size)
 
     def eat_food(self):

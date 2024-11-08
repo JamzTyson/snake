@@ -1,3 +1,5 @@
+"""Custom Turtle game sprites."""
+
 import turtle
 from itertools import pairwise
 from random import choice, randint
