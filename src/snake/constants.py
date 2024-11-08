@@ -18,12 +18,6 @@ class TextAttributes(NamedTuple):
     v_pos: int
 
 
-class Scores(NamedTuple):
-    """Current and high scores in game."""
-    current_score: int
-    high_score: int
-
-
 class Direction(Enum):
     """Snake direction flags."""
     UP = auto()

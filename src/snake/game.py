@@ -6,7 +6,10 @@ from random import choice, randint
 import turtle
 
 from snake.config import Config, SpriteConfig
-from snake.constants import Direction, Scores, KEY_BINDINGS, BACKTRACK_MAP
+from snake.constants import (Direction,
+                             KEY_BINDINGS,
+                             BACKTRACK_MAP,
+                             SpriteAttributes)
 from snake.ui import ScreenManager
 
 
@@ -26,7 +29,7 @@ class SnakeGame:
 
         # Initialise speed (delay) and scores.
         self.delay = config.initial_update_delay
-        self.scores: Scores = Scores(current_score=0, high_score=0)
+        self.scores: dict[str, int] = {'current_score': 0, 'high_score': 0}
 
         # Initialise game components.
         self.screen_manager = ScreenManager(config, sprite_config)
@@ -75,13 +78,31 @@ class SnakeGame:
         return not (x_min <= x_coord <= x_max and
                     y_min <= y_coord <= y_max)
 
+    def check_food_collision(self):
+        """Return True if head collides with food_attributes sprite."""
+        return (self.snake.head.distance(self.food)
+                < self.sprite_config.sprite_size)
+
+    def eat_food(self):
+        """Handle actions when head touches a food_attributes sprite."""
+        self.scores['current_score'] += 1
+        if self.scores['current_score'] > self.scores['high_score']:
+            self.scores['high_score'] = self.scores['current_score']
+        self.screen_manager.update_score(self.scores)
+        self.food.replace_food()
+
     def update(self) -> None:
         """Main game loop to keep updating the game state."""
         self.snake.move()
         if self.check_collision():
+            self.scores['current_score'] = 0
+            self.screen_manager.update_score(self.scores)
             self.snake.reset_snake()
+        if self.check_food_collision():
+            self.eat_food()
         turtle.update()  # pylint: disable=no-member
-        self.screen_manager.screen.ontimer(self.update, self.delay)
+        screen = self.screen_manager.screen
+        screen.ontimer(self.update, self.delay)
 
 
 class Snake:
@@ -184,20 +205,35 @@ class Food(turtle.Turtle):
     def __init__(self, config: Config, sprite_config: SpriteConfig) -> None:
         super().__init__()
         self.config = config
+        self.sprite_config = sprite_config
         self.sprite_size = sprite_config.sprite_size
-        sprite = choice(sprite_config.food)
-        self.color(sprite.color)
-        self.shape(sprite.shape)
-        self.penup()
+        attributes = choice(sprite_config.food_attributes)
+        self.set_attributes(attributes)
         self.place_food()
+
+    def set_attributes(self, food_attributes: SpriteAttributes) -> None:
+        """Set food turtle attributes."""
+        self.color(food_attributes.color)
+        self.shape(food_attributes.shape)
+        self.penup()
 
     def place_food(self) -> None:
         """Add food item at random position"""
         padding = self.sprite_size
         x_max = self.config.display_width // 2 - padding
-        y_max = self.config.display_height // 2 - padding
-        position = randint(-x_max, x_max), randint(-y_max, y_max)
+        half_height = self.config.display_height // 2
+        y_max = half_height - self.config.scoreboard_height - padding
+        y_min = padding - half_height
+        position = randint(-x_max, x_max), randint(y_min, y_max)
         self.goto(position)
+
+    def replace_food(self):
+        """Re-initialise 'eaten' food as new food item."""
+        self.hideturtle()
+        attributes = choice(self.sprite_config.food_attributes)
+        self.set_attributes(attributes)
+        self.place_food()
+        self.showturtle()
 
 
 if __name__ == '__main__':

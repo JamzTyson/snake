@@ -42,7 +42,7 @@ class SpriteConfig:
                                                  shape='circle')
     sprite_size: int = 20  # px size of head.
     # noinspection SpellCheckingInspection
-    food: tuple[SpriteAttributes, ...] = (
+    food_attributes: tuple[SpriteAttributes, ...] = (
         SpriteAttributes(color='red', shape='circle'),
         SpriteAttributes(color='yellow', shape='circle'),
         SpriteAttributes(color='limegreen', shape='circle')
