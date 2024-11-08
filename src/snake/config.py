@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from snake.constants import SpriteAttributes, TextAttributes
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclass
 class Config:
     """Configure game defaults."""

@@ -1,6 +1,7 @@
 """Python / Turtle implementation of classic Snake game."""
 
 import turtle
+from typing import Callable
 
 from snake.config import Config, SpriteConfig
 from snake.constants import KEY_BINDINGS
@@ -35,10 +36,10 @@ class SnakeGame:
         self.screen_manager.screen.listen()
 
         for direction, char in KEY_BINDINGS.items():
-            self.screen_manager.screen.onkeypress(
-                lambda d=direction:
-                (self.game_state.snake.set_direction(d)), char
+            fun: Callable = (
+                lambda d=direction: self.game_state.snake.set_direction(d)
             )
+            self.screen_manager.screen.onkeypress(fun, char)
 
     def check_collision(self) -> bool:
         """Return True if snake collides with edge of board or its tail."""
