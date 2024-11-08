@@ -49,8 +49,9 @@ class SnakeGame:
         """Return True if head collides with edge of board."""
         head = self.game_state.head
         half_head_size = self.sprite_config.sprite_size // 2
-        for segment in self.game_state.segments:
-            if segment.distance(head) <= half_head_size:
+        # Ignore first segment which will be closer to head.
+        for segment in self.game_state.segments[1:]:
+            if segment.distance(head) < half_head_size:
                 return True
         return False
 
@@ -76,6 +77,7 @@ class SnakeGame:
 
     def eat_food(self):
         """Handle actions when head touches a food_attributes sprite."""
+        self.game_state.snake.add_segment()
         self.game_state.add_to_score()
         self.screen_manager.update_score(self.game_state)
         self.game_state.food.replace_food()
@@ -87,6 +89,7 @@ class SnakeGame:
             self.game_state.reset_current()
             self.screen_manager.update_score(self.game_state)
             self.game_state.snake.reset_snake()
+            self.game_state.food.replace_food()
         if self.check_food_collision():
             self.eat_food()
         turtle.update()  # pylint: disable=no-member

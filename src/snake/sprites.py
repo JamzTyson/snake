@@ -33,6 +33,8 @@ class Snake:
         """Reset snake and tail to initial state."""
         self.head.goto(0, 0)
         self.head_direction = Direction.STOP
+        for segment in self.segments:
+            segment.hideturtle()
         self.segments = []
 
     @classmethod

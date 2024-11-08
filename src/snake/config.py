@@ -10,8 +10,8 @@ class Config:
     """Configure game defaults."""
 
     # Game speed.
-    initial_update_delay: int = 25  # milliseconds
-    move_delta: float = 5.0  # Distance to move snake head per step.
+    initial_update_delay: int = 50  # milliseconds
+    move_delta: float = 10.0  # Distance to move snake head per step.
 
     # Scoreboard.
     scoreboard_height: int = 50
