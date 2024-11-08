@@ -8,6 +8,7 @@ scoreboard, and updating the score display.
 import turtle
 
 from snake.config import Config, SpriteConfig
+from snake.game_state import GameState
 
 
 class ScreenManager:
@@ -78,9 +79,9 @@ class ScreenManager:
             board_turtle.right(90)
         board_turtle.end_fill()
 
-    def update_score(self, scores: dict[str, int]) -> None:
+    def update_score(self, game_state: GameState) -> None:
         """Write current score to screen."""
         self.pen.clear()
-        self.pen.write(f"Score : {scores['current_score']}  "
-                       f"High Score : {scores['high_score']}", align="center",
+        self.pen.write(f"Score : {game_state.scores.current}  "
+                       f"High Score : {game_state.scores.best}", align="center",
                        font=self.config.text.font)
