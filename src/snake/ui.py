@@ -17,7 +17,8 @@ class ScreenManager:
         self.config = config
         self.sprite_config = sprite_config
         self.screen = turtle.Screen()
-        self.pen = turtle.Turtle()
+        self.text_pen = turtle.Turtle()
+        self.graphics_pen = turtle.Turtle()
 
         self.setup_screen()
 
@@ -27,7 +28,6 @@ class ScreenManager:
         width = self.config.display_width
         height = self.config.display_height
 
-        self.screen = turtle.Screen()
         # Setup screen area with border space.
         self.screen.setup(width + self.config.border * 2,
                           height + self.config.border * 2)
@@ -38,10 +38,10 @@ class ScreenManager:
         self.draw_game_area()
 
         # Screen text
-        self.pen.color(self.config.text.color)
-        self.pen.hideturtle()
-        self.pen.penup()
-        self.pen.goto(0, height // 2 - self.config.text.v_pos)
+        self.text_pen.color(self.config.text.color)
+        self.text_pen.hideturtle()
+        self.text_pen.penup()
+        self.text_pen.goto(0, height // 2 - self.config.text.v_pos)
 
     def draw_scoreboard(self) -> None:
         """Draw the score area at the top of the screen."""
@@ -60,29 +60,27 @@ class ScreenManager:
         color = self.config.board_color
         self._draw_board_region(width, height, top, color)
 
-    @staticmethod
-    def _draw_board_region(width: int,
+    def _draw_board_region(self, width: int,
                            height: int,
                            top: int,
                            color: str) -> None:
         """Draw rectangular area the width of the board."""
-        board_turtle = turtle.Turtle()
-        board_turtle.hideturtle()
-        board_turtle.penup()
+        self.graphics_pen.hideturtle()
+        self.graphics_pen.penup()
         # Start at top left corner.
-        board_turtle.goto(-width // 2, top)
-        board_turtle.pendown()
-        board_turtle.color(color)
+        self.graphics_pen.goto(-width // 2, top)
+        self.graphics_pen.pendown()
+        self.graphics_pen.color(color)
 
-        board_turtle.begin_fill()
+        self.graphics_pen.begin_fill()
         for distance in (width, height, width, height):
-            board_turtle.forward(distance)
-            board_turtle.right(90)
-        board_turtle.end_fill()
+            self.graphics_pen.forward(distance)
+            self.graphics_pen.right(90)
+        self.graphics_pen.end_fill()
 
     def update_score(self, game_state: GameState) -> None:
         """Write current score to screen."""
-        self.pen.clear()
-        self.pen.write(f"Score : {game_state.current_score}  "
+        self.text_pen.clear()
+        self.text_pen.write(f"Score : {game_state.current_score}  "
                        f"High Score : {game_state.best_score}", align="center",
-                       font=self.config.text.font)
+                            font=self.config.text.font)
