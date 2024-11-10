@@ -21,8 +21,8 @@ class TextAttributes(NamedTuple):
 # noinspection SpellCheckingInspection
 class Coords(NamedTuple):
     """x/y coordinates."""
-    x: int
-    y: int
+    x: float
+    y: float
 
 
 class Direction(Enum):

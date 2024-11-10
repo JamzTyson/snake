@@ -92,15 +92,20 @@ class SnakeGame:
         """Main game loop to keep updating the game state."""
         self.game_state.snake.move()
         if self.check_collision():
-            self.game_state.reset_current()
-            self.screen_manager.update_score(self.game_state)
-            self.game_state.snake.reset_snake()
-            self.game_state.food.replace_food()
+            self.end_game()
         if self.check_food_collision():
             self.eat_food()
         turtle.update()  # pylint: disable=no-member
         screen = self.screen_manager.screen
         screen.ontimer(self.update, self.game_state.delay)
+
+    def end_game(self):
+        """Handle game end."""
+        self.game_state.reset_current()
+        self.screen_manager.update_score(self.game_state)
+        self.game_state.snake.reset_snake()
+        self.game_state.head.spin_head()
+        self.game_state.food.replace_food()
 
 
 if __name__ == '__main__':

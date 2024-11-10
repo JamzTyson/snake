@@ -3,7 +3,7 @@ import turtle
 from dataclasses import dataclass
 
 from snake.constants import Coords
-from snake.sprites import Food, Snake
+from snake.sprites import Food, Snake, SnakeHead
 
 
 @dataclass
@@ -49,7 +49,7 @@ class GameState:
         return self._snake
 
     @property
-    def head(self) -> turtle.Turtle:
+    def head(self) -> SnakeHead:
         """Return Snake.head sprite."""
         return self._snake.head
 

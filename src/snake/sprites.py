@@ -16,7 +16,7 @@ class SnakeHead(turtle.Turtle):
         self.shape_name = 'head'
         self.register_head_shape()
         self.shape(self.shape_name)
-        self.setheading(90)
+        self.setheading(90)  # Up
         self.penup()
 
     def register_head_shape(self):
@@ -62,6 +62,13 @@ class SnakeHead(turtle.Turtle):
         t.end_fill()
         return t.get_poly(), color
 
+    def spin_head(self) -> None:
+        """Spin the head in its current position."""
+        turtle.tracer(1)  # pylint: disable=no-member
+        for i in range(90, -280, -10):
+            self.setheading(i)
+        turtle.tracer(0)  # pylint: disable=no-member
+
 
 class Snake:
     """Snake character as compound turtle."""
@@ -80,7 +87,7 @@ class Snake:
         if not Snake._angle_map:
             Snake.set_angle_map()
 
-        self.head = SnakeHead()
+        self.head: SnakeHead = SnakeHead()
         self.head.penup()
         self.head_direction = Direction.STOP
         self.segments: list[turtle.Turtle] = []
@@ -129,10 +136,7 @@ class Snake:
 
     def spin_head(self) -> None:
         """Spin the head in its current position."""
-        turtle.tracer(1)  # pylint: disable=no-member
-        for i in range(90, -280, -10):
-            self.head.setheading(i)
-        turtle.tracer(0)  # pylint: disable=no-member
+        self.head.spin_head()
 
     def add_segment(self) -> None:
         """Add one body segment.
