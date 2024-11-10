@@ -86,6 +86,9 @@ class SnakeGame:
         self.game_state.snake.add_segment()
         self.game_state.add_to_score(self.game_state.food.value)
         self.screen_manager.update_score(self.game_state)
+        if self.game_state.delay > 2:
+            self.game_state.delay -= 1
+        print(self.game_state.delay)
         self.game_state.food.replace_food()
 
     def update(self) -> None:
@@ -105,6 +108,7 @@ class SnakeGame:
         self.screen_manager.update_score(self.game_state)
         self.game_state.snake.reset_snake()
         self.game_state.food.remove_food()
+        self.game_state.delay = self.config.initial_update_delay
         # Start new game
         self.game_state.head.spin_head()
         self.game_state.add_food_item()
