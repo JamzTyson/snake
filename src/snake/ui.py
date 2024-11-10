@@ -86,3 +86,5 @@ class ScreenManager:
             f"High Score : {game_state.best_score}", align="center",
             font=self.config.text.font
         )
+        # Ensure scores are updated after writing.
+        self.screen.update()
