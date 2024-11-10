@@ -25,6 +25,15 @@ class Coords(NamedTuple):
     y: float
 
 
+# Global dictionary for opposite directions
+_BACKTRACK_MAP = {
+    'UP': 'DOWN',
+    'DOWN': 'UP',
+    'LEFT': 'RIGHT',
+    'RIGHT': 'LEFT',
+}
+
+
 class Direction(Enum):
     """Snake direction flags."""
     UP = auto()
@@ -32,6 +41,10 @@ class Direction(Enum):
     LEFT = auto()
     RIGHT = auto()
     STOP = auto()
+
+    def is_opposite(self, d: 'Direction') -> bool:
+        """Return True if d is opposite direction."""
+        return self.name == _BACKTRACK_MAP.get(d.name)
 
 
 KEY_BINDINGS: dict[Direction, str] = {
@@ -41,12 +54,3 @@ KEY_BINDINGS: dict[Direction, str] = {
     Direction.RIGHT: "Right",
     Direction.STOP: "space"
 }
-
-
-BACKTRACK_MAP: dict[Direction, Direction] = {
-    Direction.UP: Direction.DOWN,
-    Direction.DOWN: Direction.UP,
-    Direction.LEFT: Direction.RIGHT,
-    Direction.RIGHT: Direction.LEFT
-}
-"""BACKTRACK_MAP: Maps each Direction to its opposite."""

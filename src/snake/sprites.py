@@ -6,7 +6,7 @@ from random import choice, randint
 from typing import Any
 
 from snake.config import Config, SpriteConfig
-from snake.constants import BACKTRACK_MAP, Direction, SpriteAttributes
+from snake.constants import Direction, SpriteAttributes
 
 
 class SnakeHead(turtle.Turtle):
@@ -72,7 +72,6 @@ class SnakeHead(turtle.Turtle):
 
 class Snake:
     """Snake character as compound turtle."""
-    _backtrack_map = BACKTRACK_MAP
     _move_delta_map: dict[Direction, tuple[float, float]] = {}
     _angle_map: dict[Direction, float] = {}
 
@@ -129,7 +128,7 @@ class Snake:
 
         Snake cannot double back on itself.
         """
-        if self.head_direction is not Snake._backtrack_map.get(direction):
+        if not direction.is_opposite(self.head_direction):
             self.head_direction = direction
             if direction in Snake._angle_map:
                 self.head.setheading(Snake._angle_map[direction])
