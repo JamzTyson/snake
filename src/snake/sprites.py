@@ -1,7 +1,10 @@
 """Custom Turtle game sprites."""
-
+import os
 import turtle
+from contextlib import contextmanager
 from itertools import pairwise
+from importlib import resources
+from pathlib import Path
 from random import choice, randint
 from typing import Any
 
@@ -197,14 +200,28 @@ class Food(turtle.Turtle):
         self.config = config
         self.sprite_config = sprite_config
         self.sprite_size = sprite_config.sprite_size
+        # Register food gifs
+        self.register_gifs()
+
         attributes = choice(sprite_config.food_attributes)
         self.set_attributes(attributes)
         self.place_food()
 
+    def register_gifs(self):
+        """Load the gif images."""
+        assets_path = 'snake.assets'
+        for attr in self.sprite_config.food_attributes:
+            with resources.path(assets_path, attr.shape) as gif_path:
+                with temporary_cwd(gif_path.parent):
+                    turtle.register_shape(attr.shape)
+
     def set_attributes(self, food_attributes: SpriteAttributes) -> None:
         """Set food turtle attributes."""
         self.color(food_attributes.color)
-        self.shape(food_attributes.shape)
+        try:
+            self.shape(food_attributes.shape)
+        except turtle.TurtleGraphicsError as exc:
+            print(f"{exc}")
         self.penup()
 
     def place_food(self) -> None:
@@ -228,3 +245,14 @@ class Food(turtle.Turtle):
     def remove_food(self):
         """Hides food sprite."""
         self.hideturtle()
+
+
+@contextmanager
+def temporary_cwd(path: Path):
+    """Temporarily change the working directory."""
+    original_cwd = Path.cwd()
+    try:
+        os.chdir(path)
+        yield
+    finally:
+        os.chdir(original_cwd)
