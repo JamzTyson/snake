@@ -27,6 +27,10 @@ class SnakeGame:
         self.game_state = GameState(config, sprite_config)
         self.setup_listeners()
 
+        # A little flourish before we start.
+        self.game_state.snake.spin_head()
+        self.game_state.add_food_item()
+
         # Handle updates.
         self.screen_manager.update_score(self.game_state)
         self.update()
@@ -72,8 +76,10 @@ class SnakeGame:
 
     def check_food_collision(self):
         """Return True if head collides with food_attributes sprite."""
-        return (self.game_state.head.distance(self.game_state.food)
-                < self.sprite_config.sprite_size)
+        if self.game_state.food is not None:
+            return (self.game_state.head.distance(self.game_state.food)
+                    < self.sprite_config.sprite_size)
+        return False
 
     def eat_food(self):
         """Handle actions when head touches a food_attributes sprite."""

@@ -3,15 +3,71 @@
 import turtle
 from itertools import pairwise
 from random import choice, randint
+from typing import Any
 
 from snake.config import Config, SpriteConfig
 from snake.constants import BACKTRACK_MAP, Direction, SpriteAttributes
+
+
+class SnakeHead(turtle.Turtle):
+    """Compound shape turtle for snake head."""
+    def __init__(self):
+        super().__init__()
+        self.shape_name = 'head'
+        self.register_head_shape()
+        self.shape(self.shape_name)
+        self.setheading(90)
+        self.penup()
+
+    def register_head_shape(self):
+        """Register compound shape for head of the snake."""
+        s: turtle.Shape = turtle.Shape("compound")
+
+        # Temporary turtle for shape creation, to keep it hidden.
+        temp = turtle.Turtle()
+        temp.hideturtle()
+        temp.penup()
+
+        # noinspection SpellCheckingInspection
+        components = {
+            'face': self.circle_component(temp, (0, -10), 10, 'limegreen'),
+            'left_eye': self.circle_component(temp, (-6, 0), 6, 'white'),
+            'right_eye': self.circle_component(temp, (6, 0), 6, 'white'),
+            'left_pupil': self.circle_component(temp, (-7, 3), 4, 'black'),
+            'right_pupil': self.circle_component(temp, (7, 3), 4, 'black')
+        }
+
+        for component in components.values():
+            try:
+                shape, fill = component  # Attempt to unpack
+                s.addcomponent(shape, fill)
+            except ValueError:
+                print(f"Expected tuple (shape, fill), but got {component}")
+
+        turtle.register_shape(self.shape_name, s)  # pylint: disable=no-member
+        temp.clear()
+
+    @staticmethod
+    def circle_component(t: turtle.Turtle,
+                         position: tuple[int, int],
+                         size: int,
+                         color: str) -> tuple[Any, str]:
+        """Return filled circular polygon and fill color."""
+        t.color(color)
+        t.goto(position)
+        t.begin_fill()
+        t.begin_poly()
+        t.circle(size)
+        t.end_poly()
+        t.end_fill()
+        return t.get_poly(), color
 
 
 class Snake:
     """Snake character as compound turtle."""
     _backtrack_map = BACKTRACK_MAP
     _move_delta_map: dict[Direction, tuple[float, float]] = {}
+    _angle_map: dict[Direction, float] = {}
 
     def __init__(self, config: Config, sprite_config: SpriteConfig) -> None:
         self.config = config
@@ -20,10 +76,11 @@ class Snake:
         # Map direction of movement to x,y delta.
         if not Snake._move_delta_map:
             Snake.set_move_delta_map(config.move_delta)
+        # Map direction of movement to orientation in degrees
+        if not Snake._angle_map:
+            Snake.set_angle_map()
 
-        self.head = turtle.Turtle()
-        self.head.shape(self.sprite_config.head.shape)
-        self.head.color(self.sprite_config.head.color)
+        self.head = SnakeHead()
         self.head.penup()
         self.head_direction = Direction.STOP
         self.segments: list[turtle.Turtle] = []
@@ -50,6 +107,16 @@ class Snake:
             Direction.RIGHT: (delta, 0)
         }
 
+    @classmethod
+    def set_angle_map(cls):
+        """Initialise angle map."""
+        cls._angle_map = {
+            Direction.RIGHT: 0,
+            Direction.UP: 90,
+            Direction.LEFT: 180,
+            Direction.DOWN: 270
+        }
+
     def set_direction(self, direction: Direction) -> None:
         """Set snake head direction.
 
@@ -57,6 +124,15 @@ class Snake:
         """
         if self.head_direction is not Snake._backtrack_map.get(direction):
             self.head_direction = direction
+            if direction in Snake._angle_map:
+                self.head.setheading(Snake._angle_map[direction])
+
+    def spin_head(self) -> None:
+        """Spin the head in its current position."""
+        turtle.tracer(1)  # pylint: disable=no-member
+        for i in range(90, -280, -10):
+            self.head.setheading(i)
+        turtle.tracer(0)  # pylint: disable=no-member
 
     def add_segment(self) -> None:
         """Add one body segment.
@@ -69,7 +145,10 @@ class Snake:
         new_segment = turtle.Turtle()
         new_segment.speed(0)
         new_segment.shape("circle")
-        new_segment.color(self.sprite_config.segment.color)
+        if len(self.segments) % 2 == 0:
+            new_segment.color(self.sprite_config.segment.color)
+        else:
+            new_segment.color(self.sprite_config.segment_alternate_color)
         new_segment.penup()
 
         if self.segments:

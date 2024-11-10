@@ -37,10 +37,11 @@ class Config:
 @dataclass
 class SpriteConfig:
     """Game Turtle attributes."""
-    head: SpriteAttributes = SpriteAttributes(color='white',
+    head: SpriteAttributes = SpriteAttributes(color='limegreen',
                                               shape='square')
-    segment: SpriteAttributes = SpriteAttributes(color='white',
+    segment: SpriteAttributes = SpriteAttributes(color='limegreen',
                                                  shape='circle')
+    segment_alternate_color: str = 'green'
     sprite_size: int = 20  # px size of head.
     # noinspection SpellCheckingInspection
     food_attributes: tuple[SpriteAttributes, ...] = (

@@ -18,9 +18,11 @@ class GameState:
     def __init__(self, config, sprite_config):
         self._scores = _Scores()
         self._snake = Snake(config, sprite_config)
-        self._food = Food(config, sprite_config)
         self._sprite_size = sprite_config.sprite_size
         self.delay = config.initial_update_delay
+        self.config = config
+        self.sprite_config = sprite_config
+        self._food = None
 
     def reset_current(self) -> None:
         """Reset current score."""
@@ -65,6 +67,10 @@ class GameState:
     def food(self) -> Food:
         """Return food sprite."""
         return self._food
+
+    def add_food_item(self) -> None:
+        """Add a random food  item to the board."""
+        self._food = Food(self.config, self.sprite_config)
 
     @property
     def sprite_size(self) -> int:

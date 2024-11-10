@@ -40,6 +40,7 @@ class ScreenManager:
         # Screen text
         self.pen.color(self.config.text.color)
         self.pen.hideturtle()
+        self.pen.penup()
         self.pen.goto(0, height // 2 - self.config.text.v_pos)
 
     def draw_scoreboard(self) -> None:
