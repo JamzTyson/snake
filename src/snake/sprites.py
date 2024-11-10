@@ -213,6 +213,7 @@ class Food(turtle.Turtle):
         for attr in self.sprite_config.food_attributes:
             with resources.path(assets_path, attr.shape) as gif_path:
                 with temporary_cwd(gif_path.parent):
+                    # pylint: disable=no-member
                     turtle.register_shape(attr.shape)
 
     def set_attributes(self, food_attributes: SpriteAttributes) -> None:

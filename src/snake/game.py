@@ -110,7 +110,6 @@ class SnakeGame:
         self.game_state.add_food_item()
 
 
-
 if __name__ == '__main__':
     game = SnakeGame(Config(), SpriteConfig())
     turtle.Screen().mainloop()
