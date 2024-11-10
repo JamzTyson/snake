@@ -218,6 +218,7 @@ class Food(turtle.Turtle):
     def set_attributes(self, food_attributes: SpriteAttributes) -> None:
         """Set food turtle attributes."""
         self.color(food_attributes.color)
+        self.value = food_attributes.value
         try:
             self.shape(food_attributes.shape)
         except turtle.TurtleGraphicsError as exc:

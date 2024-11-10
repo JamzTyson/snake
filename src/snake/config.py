@@ -45,7 +45,7 @@ class SpriteConfig:
     sprite_size: int = 20  # px size of head.
     # noinspection SpellCheckingInspection
     food_attributes: tuple[SpriteAttributes, ...] = (
-        SpriteAttributes(color='red', shape='cherry.gif'),
-        SpriteAttributes(color='yellow', shape='banana.gif'),
-        SpriteAttributes(color='limegreen', shape='lime.gif')
+        SpriteAttributes(color='limegreen', shape='lime.gif', value=1),
+        SpriteAttributes(color='red', shape='cherry.gif', value=2),
+        SpriteAttributes(color='yellow', shape='banana.gif', value=3),
     )

@@ -8,6 +8,7 @@ class SpriteAttributes(NamedTuple):
     """Color and shape of sprites."""
     color: str
     shape: str
+    value: int = 0
 
 
 class TextAttributes(NamedTuple):

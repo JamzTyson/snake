@@ -84,7 +84,7 @@ class SnakeGame:
     def eat_food(self):
         """Handle actions when head touches a food_attributes sprite."""
         self.game_state.snake.add_segment()
-        self.game_state.add_to_score()
+        self.game_state.add_to_score(self.game_state.food.value)
         self.screen_manager.update_score(self.game_state)
         self.game_state.food.replace_food()
 
