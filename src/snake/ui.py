@@ -81,6 +81,8 @@ class ScreenManager:
     def update_score(self, game_state: GameState) -> None:
         """Write current score to screen."""
         self.text_pen.clear()
-        self.text_pen.write(f"Score : {game_state.current_score}  "
-                       f"High Score : {game_state.best_score}", align="center",
-                            font=self.config.text.font)
+        self.text_pen.write(
+            f"Score : {game_state.current_score}  "
+            f"High Score : {game_state.best_score}", align="center",
+            font=self.config.text.font
+        )
