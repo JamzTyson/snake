@@ -115,7 +115,10 @@ class Snake:
 
     @classmethod
     def set_angle_map(cls):
-        """Initialise angle map."""
+        """Initialise angle map.
+
+        There is no angle associated with STOP.
+        """
         cls._angle_map = {
             Direction.RIGHT: 0,
             Direction.UP: 90,
@@ -216,8 +219,12 @@ class Food(turtle.Turtle):
 
     def replace_food(self):
         """Re-initialise 'eaten' food as new food item."""
-        self.hideturtle()
+        self.remove_food()
         attributes = choice(self.sprite_config.food_attributes)
         self.set_attributes(attributes)
         self.place_food()
         self.showturtle()
+
+    def remove_food(self):
+        """Hides food sprite."""
+        self.hideturtle()

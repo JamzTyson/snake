@@ -104,8 +104,11 @@ class SnakeGame:
         self.game_state.reset_current()
         self.screen_manager.update_score(self.game_state)
         self.game_state.snake.reset_snake()
+        self.game_state.food.remove_food()
+        # Start new game
         self.game_state.head.spin_head()
-        self.game_state.food.replace_food()
+        self.game_state.add_food_item()
+
 
 
 if __name__ == '__main__':
