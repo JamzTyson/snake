@@ -15,10 +15,16 @@ class Config:
 
     # Scoreboard.
     scoreboard_height: int = 50
-    text: TextAttributes = TextAttributes(color='white',
-                                          bg_color='black',
-                                          font=("sans", 20, "normal"),
-                                          v_pos=50)
+    scoreboard_text: TextAttributes = TextAttributes(
+        color='white',
+        bg_color='black',
+        font=("sans", 20, "normal")
+    )
+    splash_text: TextAttributes = TextAttributes(
+        color='blue',
+        bg_color='',
+        font=("sans", 20, "normal")
+    )
 
     # App window properties.
     display_width: int = 600

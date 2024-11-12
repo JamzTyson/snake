@@ -16,7 +16,6 @@ class TextAttributes(NamedTuple):
     color: str
     bg_color: str
     font: tuple[str, int, str]
-    v_pos: int
 
 
 # noinspection SpellCheckingInspection

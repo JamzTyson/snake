@@ -8,7 +8,12 @@ scoreboard, and updating the score display.
 import turtle
 
 from snake.config import Config, SpriteConfig
+from snake.constants import TextAttributes
 from snake.game_state import GameState
+
+
+# Typehint alias
+Pen = turtle.Turtle
 
 
 class ScreenManager:
@@ -17,8 +22,15 @@ class ScreenManager:
         self.config = config
         self.sprite_config = sprite_config
         self.screen = turtle.Screen()
-        self.text_pen = turtle.Turtle()
-        self.graphics_pen = turtle.Turtle()
+
+        # Create Turtles for drawing and writing.
+        self.scoreboard_pen = turtle.Turtle()  # Writes scores at top.
+        # Writes eaten food score value. As this is never cleared, this
+        # pen only needs to have its attributes set once.
+        self.splash_pen = turtle.Turtle()
+        self.set_pen_attributes(self.splash_pen, self.config.splash_text)
+
+        self.graphics_pen = turtle.Turtle()  # Draws board regions.
 
         self.setup_screen()
 
@@ -37,18 +49,20 @@ class ScreenManager:
         self.draw_scoreboard()
         self.draw_game_area()
 
-        # Screen text
-        self.text_pen.color(self.config.text.color)
-        self.text_pen.hideturtle()
-        self.text_pen.penup()
-        self.text_pen.goto(0, height // 2 - self.config.text.v_pos)
+    @staticmethod
+    def set_pen_attributes(pen: Pen, attributes: TextAttributes) -> None:
+        """Clear pen and set or reset pen attributes."""
+        pen.clear()
+        pen.hideturtle()
+        pen.penup()
+        pen.color(attributes.color)
 
     def draw_scoreboard(self) -> None:
         """Draw the score area at the top of the screen."""
         height = self.config.scoreboard_height
         width = self.config.display_width
         top = self.config.display_height // 2
-        color = self.config.text.bg_color
+        color = self.config.scoreboard_text.bg_color
         self._draw_board_region(width, height, top, color)
 
     def draw_game_area(self) -> None:
@@ -80,11 +94,27 @@ class ScreenManager:
 
     def update_score(self, game_state: GameState) -> None:
         """Write current score to screen."""
-        self.text_pen.clear()
-        self.text_pen.write(
+        self.set_pen_attributes(self.scoreboard_pen,
+                                self.config.scoreboard_text)
+
+        vpos = ((self.config.display_height // 2)
+                - self.config.scoreboard_height)
+        self.scoreboard_pen.goto(0, vpos)
+
+        self.scoreboard_pen.write(
             f"Score : {game_state.current_score}  "
             f"High Score : {game_state.best_score}", align="center",
-            font=self.config.text.font
+            font=self.config.scoreboard_text.font
         )
-        # Ensure scores are updated after writing.
-        self.screen.update()
+
+    def score_splash(self, value: int) -> None:
+        """Display last score for a few seconds.
+
+        Note:
+            As we do not call clear() on this turtle, it is not
+            necessary to re-initialise attributes.
+        """
+        self.splash_pen.home()
+        self.splash_pen.write(f"{value:+}",
+                              font=self.config.scoreboard_text.font)
+        self.screen.ontimer(self.splash_pen.undo, 500)
