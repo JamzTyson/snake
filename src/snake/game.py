@@ -4,7 +4,7 @@ import turtle
 from typing import Callable
 
 from snake.config import Config, SpriteConfig
-from snake.constants import KEY_BINDINGS
+from snake.constants import Direction, KEY_BINDINGS
 from snake.game_state import GameState
 from snake.ui import ScreenManager
 
@@ -112,6 +112,7 @@ class SnakeGame:
         self.game_state.delay = self.config.initial_update_delay
         # Start new game
         self.game_state.head.spin_head()
+        self.game_state.snake.head_direction = Direction.STOP
         self.game_state.add_food_item()
 
 
