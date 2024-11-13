@@ -19,7 +19,6 @@ class SnakeGame:
             config: Default configuration settings.
             sprite_config: Sprite attributes.
         """
-
         self.config = config
         self.sprite_config = sprite_config
 

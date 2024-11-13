@@ -16,6 +16,12 @@ class _Scores:
 class GameState:
     """Current game state."""
     def __init__(self, config, sprite_config):
+        """Initialise GameState.
+
+        Args:
+            config: Default configuration settings.
+            sprite_config: Sprite attributes.
+        """
         self._scores = _Scores()
         self._snake = Snake(config, sprite_config)
         self._sprite_size = sprite_config.sprite_size

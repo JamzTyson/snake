@@ -15,6 +15,7 @@ from snake.constants import Direction, SpriteAttributes
 class SnakeHead(turtle.Turtle):
     """Compound shape turtle for snake head."""
     def __init__(self):
+        """Initialise SnakeHead compound Turtle."""
         super().__init__()
         self.shape_name = 'head'
         self.register_head_shape()
@@ -79,6 +80,15 @@ class Snake:
     _angle_map: dict[Direction, float] = {}
 
     def __init__(self, config: Config, sprite_config: SpriteConfig) -> None:
+        """Initialise Snake.
+
+        Snake consists of a compound turtle for the head, with a
+        list of 'segment' Turtles for the tail.
+
+        Args:
+            config: Default configuration settings.
+            sprite_config: Sprite attributes.
+        """
         self.config = config
         self.sprite_config = sprite_config
 
@@ -196,6 +206,15 @@ class Snake:
 class Food(turtle.Turtle):
     """Sprites to be collected."""
     def __init__(self, config: Config, sprite_config: SpriteConfig) -> None:
+        """Initialise Food items.
+
+        Each 'Food' instance is a Turtle with additional attributes
+        controlling its appearance and behaviour.
+
+        Args:
+            config: Default configuration settings.
+            sprite_config: Sprite attributes.
+        """
         super().__init__()
         self.config = config
         self.sprite_config = sprite_config
@@ -227,7 +246,7 @@ class Food(turtle.Turtle):
         self.penup()
 
     def place_food(self) -> None:
-        """Add food item at random position"""
+        """Add food item at random position."""
         padding = self.sprite_size
         x_max = self.config.display_width // 2 - padding
         half_height = self.config.display_height // 2

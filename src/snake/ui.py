@@ -19,6 +19,12 @@ Pen = turtle.Turtle
 class ScreenManager:
     """Draw and manage screen areas."""
     def __init__(self, config: Config, sprite_config: SpriteConfig):
+        """Initialise ScreenManager.
+
+        Args:
+            config (Config): Main configuration settings.
+            sprite_config (SpriteConfig): Cofig settings for sprite Turtles.
+        """
         self.config = config
         self.sprite_config = sprite_config
         self.screen = turtle.Screen()
@@ -115,6 +121,5 @@ class ScreenManager:
             necessary to re-initialise attributes.
         """
         self.splash_pen.home()
-        self.splash_pen.write(f"{value:+}",
-                              font=self.config.scoreboard_text.font)
+        self.splash_pen.write(f"{value:+}", font=self.config.scoreboard_text.font)
         self.screen.ontimer(self.splash_pen.undo, 500)
